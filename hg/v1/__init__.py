@@ -129,6 +129,8 @@ class Player(BasePlayer):
     Q3_answer = models.StringField()
     selected_round = models.StringField(initial="[]")
     final_payoff = models.IntegerField(initial=0)
+    final_final_payoff = models.IntegerField(initial=0)
+    total_payoff = models.IntegerField(initial=0)
 
     player_choice = models.BooleanField(
         widget=widgets.RadioSelectHorizontal
