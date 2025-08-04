@@ -377,8 +377,8 @@ class Finalize(Page):
         return {
             'selected_rounds': eval(self.selected_round) if isinstance(self.selected_round, str) else self.selected_round,
             'final_payoff': self.final_payoff,
-            'final_final_payoff': self.final_final_payoff,
-            'total_payoff': self.total_payoff
+            'final_final_payoff': int(self.final_final_payoff),
+            'total_payoff': int(self.total_payoff)
         }
 
 
