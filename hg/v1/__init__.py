@@ -128,7 +128,7 @@ class Player(BasePlayer):
     Q2_answer = models.StringField()
     Q3_answer = models.StringField()
     selected_round = models.StringField(initial="[]")
-    final_payoff = models.IntegerField(initial=0)
+    final_payoff = models.CurrencyField(initial=0)
     final_final_payoff = models.CurrencyField(initial=0)
     total_payoff = models.CurrencyField(initial=0)
 
