@@ -1,0 +1,252 @@
+{% extends "global/Page.html" %}
+{% block content %}
+<h1>Round Number: {{ round_number }} / {{ Constants.num_rounds }} </h1>
+<p>You are <b>{{ player.role }}</b> in this round.</p>
+
+<svg id="tree" width="1500" height="500"></svg>
+
+<div id="choice-buttons" style="margin-top: 20px; text-align: center; font-size: 25px;  ">
+    <p><strong>Select your choice:</strong></p>
+    <p>{{ form.player_choice }}</p>
+</div>
+
+
+<div id="countdown" style="margin-top: 20px; font-size: 18px; font-weight: bold; color: #333;">
+  Next button will appear in <span id="countdown-timer">10</span> seconds...
+</div>
+
+<div id="next-button-container" style="display: none; margin-top: 20px;">
+  <p>{{ next_button }}</p>
+</div>
+
+<input type="hidden" id="click_data" name="click_data" value="{{ player.click_data }}">
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  .node circle {
+    fill: lightblue;
+    stroke: black;
+    stroke-width: 1.5px;
+  }
+  .node text {
+    font-size: 15px;
+    text-anchor: middle;
+  }
+  .link {
+    fill: none;
+    stroke: black;
+    stroke-width: 6px;
+  }
+  .highlight {
+    stroke: orange;
+  }
+  .dashed-line {
+    stroke-dasharray: 5, 5;
+    stroke: black;
+    stroke-width: 3px;
+  }
+
+  .otree-timer {
+    display: none;
+  }
+
+  p {font-size: 25px; }
+  input[type=radio]{
+  margin: 10px 0px 10px 0px;
+  position: relative;
+  transform: scale(1.1);
+  margin:10px;
+
+  }
+
+</style>
+
+
+
+<script>
+  let clickData = [];
+
+function drawGameTree() {
+  d3.select("#tree").selectAll("*").remove();
+  const svg = d3.select("#tree").append("g").attr("transform", "translate(0,0)");
+
+  // Define arrowheads
+  const defs = svg.append("defs");
+
+  defs.append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -4 10 8")
+    .attr("refX", 25)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-4L10,0L0,4")
+    .attr("fill", "black");
+
+  defs.append("marker")
+    .attr("id", "arrowhead-highlight")
+    .attr("viewBox", "0 -4 10 8")
+    .attr("refX", 25)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-4L10,0L0,4")
+    .attr("fill", "orange");
+
+  const nodes = [
+    { id: "O1", x: 200, y: 100, shape: "square", color: "red", type: "decision" },
+    { id: "O2", x: 600, y: 100, shape: "circle", color: "blue", type: "decision" },
+    { id: "x1", x: 200, y: 300, shape: "triangle", color: "green", type: "decision" },
+    { id: "x2", x: 600, y: 300, shape: "triangle", color: "green", type: "decision" },
+    { id: "O3", x: 800, y: 100, shape: "circle", color: "black", type: "payoff", label: "End by Circle" },
+    { id: "z1", x: 100, y: 450, shape: "circle", color: "black", type: "payoff", label: "A" },
+    { id: "z2", x: 300, y: 450, shape: "circle", color: "black", type: "payoff", label: "B" },
+    { id: "z3", x: 500, y: 450, shape: "circle", color: "black", type: "payoff", label: "C" },
+    { id: "z4", x: 700, y: 450, shape: "circle", color: "black", type: "payoff", label: "D" },
+  ];
+
+  const links = [
+    { id: "L1", source: "O1", target: "O2" },
+    { id: "L2", source: "O1", target: "x1" },
+    { id: "L3", source: "O2", target: "O3" },
+    { id: "L4", source: "O2", target: "x2" },
+    { id: "L5", source: "x1", target: "z1" },
+    { id: "L6", source: "x1", target: "z2" },
+    { id: "L7", source: "x2", target: "z3" },
+    { id: "L8", source: "x2", target: "z4" },
+  ];
+
+  const x1 = nodes.find(n => n.id === "x1");
+  const x2 = nodes.find(n => n.id === "x2");
+
+  svg.append("rect")
+    .attr("x", x1.x - 80)
+    .attr("y", x1.y - 75)
+    .attr("width", (x2.x - x1.x) + 160)
+    .attr("height", 135)
+    .attr("rx", 25)
+    .attr("ry", 25)
+    .style("fill", "none")
+    .style("stroke", "green")
+    .style("stroke-width", 4)
+    .style("stroke-dasharray", "6, 4");
+
+  svg.append("text")
+    .attr("x", (x1.x + x2.x) / 2)
+    .attr("y", x1.y - 20)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .style("fill", "green")
+    .text("Triangle is NOT informed which");
+
+  svg.append("text")
+    .attr("x", (x1.x + x2.x) / 2)
+    .attr("y", x1.y + 10)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .style("fill", "green")
+    .text("group member passed to them");
+
+  links.forEach((link, index) => {
+    const source = nodes.find(n => n.id === link.source);
+    const target = nodes.find(n => n.id === link.target);
+    const isArrowed = target.type === "decision";
+
+    const line = svg.append("line")
+      .attr("class", `link link-${index}`)
+      .attr("id", link.id)
+      .attr("x1", source.x)
+      .attr("y1", source.y)
+      .attr("x2", target.x)
+      .attr("y2", target.y)
+      .attr("marker-end", isArrowed ? "url(#arrowhead)" : null)
+      .on("click", function () {
+        const clickedLine = d3.select(this);
+        const isHighlighted = clickedLine.classed("highlight");
+        clickedLine.classed("highlight", !isHighlighted);
+
+        clickedLine.attr("marker-end", !isHighlighted && isArrowed
+          ? "url(#arrowhead-highlight)"
+          : isArrowed ? "url(#arrowhead)" : null
+        );
+
+        // Reset paired line
+        const togglePair = (a, b) => {
+          const altTarget = nodes.find(n => n.id === links[b].target);
+          const altArrowed = altTarget.type === "decision";
+          d3.select(`.link-${b}`).classed("highlight", false)
+            .attr("marker-end", altArrowed ? "url(#arrowhead)" : null);
+        };
+
+        switch (index) {
+          case 0: togglePair(0, 1); break;
+          case 1: togglePair(1, 0); break;
+          case 2: togglePair(2, 3); break;
+          case 3: togglePair(3, 2); break;
+          case 4: togglePair(4, 5); break;
+          case 5: togglePair(5, 4); break;
+          case 6: togglePair(6, 7); break;
+          case 7: togglePair(7, 6); break;
+        }
+
+        clickData.push({ order: clickData.length + 1, line: link.id });
+        document.getElementById("click_data").value = JSON.stringify(clickData);
+      });
+  });
+
+  nodes.forEach(node => {
+    const group = svg.append("g")
+      .attr("class", "node")
+      .attr("transform", `translate(${node.x},${node.y})`);
+
+    if (node.shape === "square") {
+      group.append("rect")
+        .attr("x", -60).attr("y", -60)
+        .attr("width", 120).attr("height", 120)
+        .style("fill", node.color)
+        .style("stroke", "black");
+    } else if (node.shape === "circle") {
+      group.append("circle")
+        .attr("r", node.type === "payoff" ? 8 : 60)
+        .style("fill", node.color)
+        .style("stroke", "black");
+    } else if (node.shape === "triangle") {
+      group.append("path")
+        .attr("d", d3.symbol().type(d3.symbolTriangle).size(6900))
+        .attr("transform", "translate(0,10)")
+        .style("fill", node.color)
+        .style("stroke", "black");
+    }
+
+    if (node.type === "payoff" && node.label) {
+      group.append("text")
+        .attr("dy", 30)
+        .text(node.label);
+    }
+  });
+}
+
+
+  drawGameTree();
+
+  let countdown = 10;
+  const countdownElement = document.getElementById("countdown-timer");
+
+  const interval = setInterval(() => {
+    countdown -= 1;
+    countdownElement.textContent = countdown;
+
+    if (countdown === 0) {
+      clearInterval(interval);
+      document.getElementById("countdown").style.display = "none";
+      document.getElementById("next-button-container").style.display = "block";
+    }
+  }, 1000);
+</script>
+{% endblock %}

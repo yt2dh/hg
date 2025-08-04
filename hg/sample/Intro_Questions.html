@@ -1,0 +1,30 @@
+{{ block title }}
+    Questions
+{{ endblock }}
+{{ block content }}
+
+    <style> p {text-align: left; font-size: 1.2em}
+
+
+    </style>
+
+    Please refer to the flow chart above to answer the following questions.
+
+    <p>
+        1. The value of the asset <b>$V</b> is <b>0.5</b> times the <b><span style="color: #ff0000">buyer's private signal</span></b> plus <b>0.5</b> times the <b><span style="color: #0000CD">seller's private signal</span></b>. If the <b><span style="color: #ff0000">buyer's private signal</span></b> is <b><span style="color: #ff0000">$1</b> and the <b><span style="color: #0000CD">seller's private signal</span></b> is <b><span style="color: #0000CD">$2</span></b>, what is the value of the asset <b>$V</b>?
+        {{ form.Q1 }}
+    </p>
+
+    <p>
+        2. If Square (□) chooses “Pass to Circle (○),” and Circle (○) chooses “End the game,” and Triangle chooses “End Left,” then how much will Triangle (△) earn in this match?
+        {{ form.Q2 }}
+    </p>
+
+    <p>
+        3. The value of the asset <b>$V</b> is <b>$2</b>. The asset is worth <b>$2</b> to the seller. If the buyer makes a bid of <b><span style="color: #E57200">$1</b> and the seller <b><span style="color: #00008B">rejects</b> the bid, what is the seller's payoff?
+        {{ form.Q3 }}
+    </p>
+
+
+    {{ next_button }}
+{{ endblock }}

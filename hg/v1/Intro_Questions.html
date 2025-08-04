@@ -1,0 +1,47 @@
+{{ block title }}
+    Questions
+{{ endblock }}
+{{ block content }}
+
+    <style> p {text-align: left; font-size: 1.4em}
+        input {
+          transform: scale(1);
+          height: 45px;
+          width: 145px;
+          position: relative;
+          font-size: 1.4em;
+          }
+        label{
+        height: 45px;
+        width: 45px;
+        font-size: 1.4em;
+        margin-right:145px;
+        }
+
+
+    </style>
+
+    <p> <img src="https://www.dropbox.com/scl/fi/j4n15znfr9q8z0zw09l97/sample_questions.png?rlkey=s1hxdfkmtewf9j4ox5wejkpve&st=ajc3qzwc&dl=1" width = "800px"/>
+
+    </p>
+
+    <p>Please refer to the flow chart above to answer the following questions.</p>
+
+    <p>
+        1. If Square (□) chooses “Pass to Circle (○),” and Circle (○) chooses “Pass to Triangle (△),” and Triangle (△) chooses “End Left,” how much will Circle (○) earn in this match?
+        {{ form.Q1 }}
+    </p>
+
+    <p>
+        2. If Square (□) chooses “Pass to Circle (○),” and Circle (○) chooses “End the game,” and Triangle (△) chooses “End Left,” how much will Triangle (△) earn in this match?
+        {{ form.Q2 }}
+    </p>
+
+    <p>
+        3. If Square (□) chooses “Pass to Triangle (△),” and Circle (○) chooses “End the game,” and Triangle (△) chooses “End Right,” how much will Square (□) earn in this match?
+        {{ form.Q3 }}
+    </p>
+
+
+    {{ next_button }}
+{{ endblock }}

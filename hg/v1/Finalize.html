@@ -1,0 +1,8 @@
+{% block content %}
+    <p>The round randomly selected for your payment is: {{ player.selected_round }}</p>
+    <p>You received: {{  player.final_payoff }} points
+    <p>Your final payoff from the 10 matches is: {{  player.final_final_payoff }}</p>
+    <p>You receive a show-up fee of $10.</p>
+    <p>You total payoff is: {{  player.total_payoff }}.</p>
+    {% next_button %}
+{% endblock %}

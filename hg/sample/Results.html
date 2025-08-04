@@ -1,0 +1,224 @@
+{% extends "global/Page.html" %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<svg id="results-tree" width="1500" height="500" style="margin-bottom: 40px;"></svg>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  .node text {
+    font-size: 15px;
+    text-anchor: middle;
+  }
+
+  .link {
+    fill: none;
+    stroke: black;
+    stroke-width: 6px;
+  }
+
+  .highlight {
+    stroke: orange;
+    stroke-width: 6px;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 3s ease-out forwards;
+  }
+
+  @keyframes drawLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .dashed-line {
+    stroke-dasharray: 6, 4;
+    stroke: green;
+    stroke-width: 3px;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const highlightedLinks = {{ highlighted_links|safe }};
+    const svg = d3.select("#results-tree").append("g")
+                  .attr("transform", "translate(0,0)");
+
+    // Arrowhead definitions
+    const defs = svg.append("defs");
+
+    defs.append("marker")
+      .attr("id", "arrowhead")
+      .attr("viewBox", "0 -4 10 8")
+      .attr("refX", 25)
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-4L10,0L0,4")
+      .attr("fill", "black");
+
+    defs.append("marker")
+      .attr("id", "arrowhead-highlight")
+      .attr("viewBox", "0 -4 10 8")
+      .attr("refX", 25)
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-4L10,0L0,4")
+      .attr("fill", "orange");
+
+    const nodes = [
+      { id: "O1", x: 200, y: 100, shape: "square", color: "red", type: "decision" },
+      { id: "O2", x: 600, y: 100, shape: "circle", color: "blue", type: "decision" },
+      { id: "x1", x: 200, y: 300, shape: "triangle", color: "green", type: "decision" },
+      { id: "x2", x: 600, y: 300, shape: "triangle", color: "green", type: "decision" },
+      { id: "O3", x: 800, y: 100, shape: "circle", color: "black", type: "payoff", label: "End by Circle" },
+      { id: "z1", x: 100, y: 450, shape: "circle", color: "black", type: "payoff", label: "A" },
+      { id: "z2", x: 300, y: 450, shape: "circle", color: "black", type: "payoff", label: "B" },
+      { id: "z3", x: 500, y: 450, shape: "circle", color: "black", type: "payoff", label: "C" },
+      { id: "z4", x: 700, y: 450, shape: "circle", color: "black", type: "payoff", label: "D" },
+    ];
+
+    const links = [
+      { id: "L1", source: "O1", target: "O2" },
+      { id: "L2", source: "O1", target: "x1" },
+      { id: "L3", source: "O2", target: "O3" },
+      { id: "L4", source: "O2", target: "x2" },
+      { id: "L5", source: "x1", target: "z1" },
+      { id: "L6", source: "x1", target: "z2" },
+      { id: "L7", source: "x2", target: "z3" },
+      { id: "L8", source: "x2", target: "z4" },
+    ];
+
+    const x1 = nodes.find(n => n.id === "x1");
+    const x2 = nodes.find(n => n.id === "x2");
+
+    // Green box around triangle decision area
+    svg.append("rect")
+      .attr("x", x1.x - 80)
+      .attr("y", x1.y - 75)
+      .attr("width", (x2.x - x1.x) + 160)
+      .attr("height", 135)
+      .attr("rx", 25)
+      .attr("ry", 25)
+      .style("fill", "none")
+      .style("stroke", "green")
+      .style("stroke-width", 4)
+      .style("stroke-dasharray", "6, 4");
+
+    svg.append("text")
+      .attr("x", (x1.x + x2.x) / 2)
+      .attr("y", x1.y - 20)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "green")
+      .text("Triangle is NOT informed which");
+
+    svg.append("text")
+      .attr("x", (x1.x + x2.x) / 2)
+      .attr("y", x1.y + 10)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "green")
+      .text("participant passed to them");
+
+    // Draw links
+    links.forEach((link) => {
+      const source = nodes.find(n => n.id === link.source);
+      const target = nodes.find(n => n.id === link.target);
+      const isArrowed = target.type === "decision";
+      const isHighlighted = highlightedLinks.includes(link.id);
+
+      const line = svg.append("line")
+        .attr("class", "link")
+        .attr("id", link.id)
+        .attr("x1", source.x)
+        .attr("y1", source.y)
+        .attr("x2", target.x)
+        .attr("y2", target.y);
+
+      if (isArrowed) {
+        line.attr("marker-end", isHighlighted
+          ? "url(#arrowhead-highlight)"
+          : "url(#arrowhead)");
+      }
+
+      if (isHighlighted) {
+        line.classed("highlight", true);
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const group = svg.append("g")
+        .attr("class", "node")
+        .attr("transform", `translate(${node.x},${node.y})`);
+
+      if (node.shape === "square") {
+        group.append("rect")
+          .attr("x", -60).attr("y", -60)
+          .attr("width", 120).attr("height", 120)
+          .style("fill", node.color)
+          .style("stroke", "black");
+      } else if (node.shape === "circle") {
+        group.append("circle")
+          .attr("r", node.type === "payoff" ? 8 : 60)
+          .style("fill", node.color)
+          .style("stroke", "black");
+      } else if (node.shape === "triangle") {
+        group.append("path")
+          .attr("d", d3.symbol().type(d3.symbolTriangle).size(6900))
+          .attr("transform", "translate(0,10)")
+          .style("fill", node.color)
+          .style("stroke", "black");
+      }
+
+      if (node.type === "payoff" && node.label) {
+        group.append("text")
+          .attr("dy", 30)
+          .text(node.label);
+      }
+    });
+  });
+</script>
+
+<h1>Game Results</h1>
+<p>Round Number: {{ round_number }}</p>
+<p>Your Role: {{ player.role }}</p>
+<p>Your payoff: {{ payoff }}</p>
+
+{{ if round_number < 60 }}
+<p>Starting the next round in <span id="countdown-timer">10</span> seconds...</p>
+{{ endif }}
+{{ if round_number == 60 }}
+<p>Showing your final payoff in <span id="countdown-timer">10</span> seconds...</p>
+{{ endif }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let countdown = 10;
+  const countdownElement = document.getElementById("countdown-timer");
+
+  const interval = setInterval(() => {
+    countdown -= 1;
+    countdownElement.textContent = countdown;
+
+    if (countdown === 0) {
+      clearInterval(interval);
+      const nextButton = document.querySelector('button[type="submit"]');
+      if (nextButton) {
+        nextButton.click();
+      } else {
+        document.querySelector("form").submit();
+      }
+    }
+  }, 1000);
+</script>
+{% endblock %}

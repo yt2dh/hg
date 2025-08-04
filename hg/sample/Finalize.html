@@ -1,0 +1,5 @@
+{% block content %}
+    <p>The round randomly selected for your payment is: {{ player.selected_round }}</p>
+    <p>Your final payoff is: {{  player.final_payoff }}</p>
+    {% next_button %}
+{% endblock %}

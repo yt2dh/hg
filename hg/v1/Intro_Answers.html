@@ -1,0 +1,68 @@
+{{ block title }}
+    Answers
+{{ endblock }}
+{{ block content }}
+
+    <style> p {text-align: left; font-size: 1.5em}
+            p + p {margin-top: 20px;}
+            .paragraph1 {font-size: 1.5em; margin-left: 18px;}
+            #myDIV {
+                      width: 100%;
+                      padding: 50px 0;
+                      text-align: center;
+                      background-color: lightblue;
+                      margin-top: 20px;
+                    }
+            table {
+                width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            h {text-align: center;}
+            #myDIV {
+                      width: 100%;
+                      padding: 50px 0;
+                      text-align: center;
+                      background-color: lightblue;
+                      margin-top: 20px;
+                      font-weight: bold;
+                    }
+    </style>
+
+    <p> <img src="https://www.dropbox.com/scl/fi/j4n15znfr9q8z0zw09l97/sample_questions.png?rlkey=s1hxdfkmtewf9j4ox5wejkpve&st=ajc3qzwc&dl=1" width = "800px"/>
+
+    </p>
+
+    <p>
+        1.If Square (□) chooses “Pass to Circle (○),” and Circle (○) chooses “Pass to Triangle (△),” and Triangle (△) chooses “End Left,” how much will Circle (○) earn in this match?
+
+    </p>
+
+    <p class="paragraph1">
+        The answer is <b><span style="color: #FFA500">150</b>. Your answer is {{ player.field_display('Q1') }}, which is <u><b>{{ player.Q1_answer }}</b></u>.
+    </p>
+
+
+    <p>
+        2. If Square (□) chooses “Pass to Circle (○),” and Circle (○) chooses “End the game,” and Triangle (△) chooses “End Left,” how much will Triangle (△) earn in this match?
+    </p>
+
+    <p class="paragraph1">
+        The answer is <b><span style="color: #FFA500">20</b>. Your answer is {{ player.field_display('Q2') }}, which is <u><b>{{ player.Q2_answer }}</b></u>.
+    </p>
+
+
+    <p>
+        3. If Square (□) chooses “Pass to Triangle (△),” and Circle (○) chooses “End the game,” and Triangle (△) chooses “End Right,” how much will Square (□) earn in this match?
+    </p>
+
+    <p class="paragraph1">
+        The answer is <b><span style="color: #FFA500">110</b>. Your answer is {{ player.field_display('Q3') }}, which is <u><b>{{ player.Q3_answer }}</b></u>.
+    </p>
+
+    <p>
+        Please click "Next" when you are ready to start the experiment.
+    </p>
+
+    {{ next_button }}
+{{ endblock }}
