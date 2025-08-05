@@ -1,7 +1,8 @@
 {% block content %}
+    <p>This is the end of the experiment</p>
     <p>The matches that are randomly selected for your payment are: {{ player.selected_round }}</p>
     <p>You received: {{  player.final_payoff }}
-    <p>Your final payoff from the 10 matches is: ${{  player.final_final_payoff }}</p>
+    <p>Your final payoff from the 10 matches is: ${{  final_final_payoff }}</p>
     <p>You earn a show-up fee of $10</p>
-    <p>You total payoff is: ${{  player.total_payoff }}.</p>
+    <p>You total payoff is: ${{  total_payoff }}.</p>
 {% endblock %}
